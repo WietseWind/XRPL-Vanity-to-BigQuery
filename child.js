@@ -42,54 +42,25 @@ process.on('message', async msg => {
  * Send data (object) to the parent with the log() method.
  */
 const main = async data => {
-  const stats = {
-    generated: 0,
-    reportPer: 25,
-    reportBufferPer: 10, // Note: size limit in process messaging
-    buffer: []
-  }
+  let buffer = []
 
   while (true) {
     const seed = keypairs.generateSeed()
     const keypair = keypairs.deriveKeypair(seed)
     const address = keypairs.deriveAddress(keypair.publicKey)
-    
-    stats.generated++
 
-    stats.buffer.push({
+    buffer.push({
       Address: address,
       FamilySeed: seed
     })
 
-    if (stats.generated > 0) {
-      if (stats.generated % stats.reportPer === 0) {
-        // console.log('Report', stats.generated)
-        process.send({
-          type: 'progress',
-          pid: process.pid,
-          data: stats.reportPer
-        })
-      }
-
-      if (stats.generated % stats.reportBufferPer === 0) {
-        process.send({
-          type: 'store',
-          pid: process.pid,
-          data: stats.buffer
-        })
-        stats.buffer = []
-      }
+    if (buffer.length >= 10) {
+      process.send({
+        type: 'store',
+        pid: process.pid,
+        data: buffer
+      })
+      buffer = []
     }
-
-    /**
-     * Stop process if a certain address is found
-     */
-    // if (address.slice(1).match(/^(something)|(something)$/i)) {
-    //   process.send({
-    //     type: 'found',
-    //     pid: process.pid,
-    //     data: {seed, address}
-    //   })
-    // }
   }
 }

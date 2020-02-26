@@ -6,25 +6,16 @@ const bigquery = new BigQuery()
  * options.children: the amount of child processes you like to start
  */
 const options = {
-  children: 70,
-  interval: {
-    stats: 1,
-    recordCountStore: 7500
-  },
-  generated: 0,
-  started: Math.round(new Date() / 1000),
+  children: 2,
+  recordCountStore: 7500,
   datasetId: 'xrpl_vanity',
   tableId: 'accounts',
-  buffer: [],
   persist: {
     chars: 12
   }
 }
 
-let statsInterval = setInterval(() => {
-  const secondsRunning = Math.round(new Date() / 1000) - options.started
-  console.log(`Generated: ${options.generated}, generations /second: ${Math.round(options.generated / secondsRunning)}`)
-}, options.interval.stats * 1000)
+let buffer = []
 
 const insertRowsAsStream = rows => {
   bigquery
@@ -63,25 +54,23 @@ const launch = data => {
             })
           }
           break;
-        case 'found':
-          children.forEach(c => c.kill('SIGINT'))
-          console.log(`Child ${msg.type}:`, msg.data)
-          break;
-        case 'progress':
-          options.generated += msg.data
-          break;
+        // case 'found':
+        //   children.forEach(c => c.kill('SIGINT'))
+        //   console.log(`Child ${msg.type}:`, msg.data)
+        //   break;
         case 'store':
-          if (options.buffer.length >= options.interval.recordCountStore) {
-            console.log('Storing...')
-            const buffer = options.buffer
-            options.buffer = []
-          
-            insertRowsAsStream(buffer)
+          if (buffer.length % 1000 === 0) {
+            console.log('Buffer length', buffer.length)
+          }
+          if (buffer.length >= options.recordCountStore) {
+            console.log(`Storing ${buffer.length} records...`)
+            const _buffer = buffer
+            buffer = []
+
+            insertRowsAsStream(_buffer)
           }
 
-          msg.data.forEach(r => {
-            options.buffer.push(r)
-          })
+          buffer.push(...(msg.data))
           break;
         case 'log':
         default:
@@ -116,6 +105,4 @@ process.on('SIGINT', () => {
   setTimeout(() => {
     console.log('Running children #', children.filter(c => c.connected).length)
   }, 500)
-  clearInterval(statsInterval)
-  clearInterval(persistInterval)
 })
