@@ -26,9 +26,9 @@ let statsInterval = setInterval(() => {
   console.log(`Generated: ${options.generated}, generations /second: ${Math.round(options.generated / secondsRunning)}`)
 }, options.interval.stats * 1000)
 
-const insertRowsAsStream = async rows => {
+const insertRowsAsStream = rows => {
   try {
-    await bigquery
+    bigquery
       .dataset(options.datasetId)
       .table(options.tableId)
       .insert(rows.map(r => {
@@ -49,10 +49,10 @@ const insertRowsAsStream = async rows => {
 /**
  * Launch one child
  */
-const launch = async data => {
+const launch = data => {
   const child = fork(__dirname + '/child.js')
 
-  child.on('message', async msg => {
+  child.on('message', msg => {
     if (typeof msg === 'object' && msg !== null && typeof msg.type === 'string') {
       switch (msg.type) {
         case 'start':
@@ -71,7 +71,8 @@ const launch = async data => {
           options.generated += msg.data
           break;
         case 'store':
-          if (options.buffer.length > options.interval.recordCountStore) {
+          if (options.buffer.length >= options.interval.recordCountStore) {
+            console.log('Storing...')
             const buffer = options.buffer
             options.buffer = []
           
@@ -110,7 +111,7 @@ console.log('Running children #', children.filter(c => c.connected).length)
  * stop and report the amount of remaining (running) children.
  * Should be zero.
  */
-process.on('SIGINT', async () => {
+process.on('SIGINT', () => {
   console.log(' --- STOPPING (PARENT: SIGINT) --- ')
   setTimeout(() => {
     console.log('Running children #', children.filter(c => c.connected).length)
