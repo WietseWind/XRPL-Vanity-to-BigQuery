@@ -45,7 +45,7 @@ const main = async data => {
   const stats = {
     generated: 0,
     reportPer: 25,
-    reportPer: 10, // Note: size limit in process messaging
+    reportBufferPer: 15, // Note: size limit in process messaging
     buffer: []
   }
 
@@ -71,7 +71,7 @@ const main = async data => {
         })
       }
 
-      if (stats.generated % stats.reportPer === 0) {
+      if (stats.generated % stats.reportBufferPer === 0) {
         process.send({
           type: 'store',
           pid: process.pid,
