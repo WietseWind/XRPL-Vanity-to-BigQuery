@@ -9,7 +9,7 @@ const options = {
   children: 70,
   interval: {
     stats: 1,
-    persist: 1
+    recordCountStore: 5000
   },
   generated: 0,
   started: Math.round(new Date() / 1000),
@@ -46,15 +46,6 @@ const insertRowsAsStream = async rows => {
   }
 }
 
-let persistInterval = setInterval(() => {
-  const buffer = options.buffer
-  options.buffer = []
-
-  if (buffer.length > 0) {
-    insertRowsAsStream(buffer)
-  }
-}, options.interval.persist * 1000)
-
 /**
  * Launch one child
  */
@@ -80,6 +71,13 @@ const launch = async data => {
           options.generated += msg.data
           break;
         case 'store':
+          if (options.buffer.length > options.interval.recordCountStore) {
+            const buffer = options.buffer
+            options.buffer = []
+          
+            insertRowsAsStream(buffer)
+          }
+
           msg.data.forEach(r => {
             options.buffer.push(r)
           })
