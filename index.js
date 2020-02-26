@@ -9,7 +9,7 @@ const options = {
   children: 70,
   interval: {
     stats: 1,
-    recordCountStore: 5000
+    recordCountStore: 7500
   },
   generated: 0,
   started: Math.round(new Date() / 1000),
@@ -17,7 +17,7 @@ const options = {
   tableId: 'accounts',
   buffer: [],
   persist: {
-    chars: 15
+    chars: 12
   }
 }
 
@@ -27,23 +27,23 @@ let statsInterval = setInterval(() => {
 }, options.interval.stats * 1000)
 
 const insertRowsAsStream = rows => {
-  try {
-    bigquery
-      .dataset(options.datasetId)
-      .table(options.tableId)
-      .insert(rows.map(r => {
-        for (let i = 0; i <= options.persist.chars - 1; i++) {
-          r[`f${i + 1}`] = r.Address.split('').slice(i + 1, i + 2)[0]
-          r[`r${i + 1}`] = r.Address.split('').reverse().slice(i, i + 1)[0]
-        }
-        return r
-      }))
-
-    console.log(`      > BigQuery: Inserted ${rows.length} rows`)
-  } catch (e) {
-    console.log(`      > BigQuery Insert ERROR(s):`)
-    console.log(e.errors.map(r => r))
-  }
+  bigquery
+    .dataset(options.datasetId)
+    .table(options.tableId)
+    .insert(rows.map(r => {
+      for (let i = 0; i <= options.persist.chars - 1; i++) {
+        r[`f${i + 1}`] = r.Address.split('').slice(i + 1, i + 2)[0]
+        r[`r${i + 1}`] = r.Address.split('').reverse().slice(i, i + 1)[0]
+      }
+      return r
+    }))
+    .then(r => {
+      console.log(`      > BigQuery: Inserted ${rows.length} rows`)
+    })
+    .catch(e => {
+      console.log(`      > BigQuery Insert ERROR(s):`)
+      console.log(e.errors.map(r => r))  
+    })
 }
 
 /**
