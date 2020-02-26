@@ -1,0 +1,7 @@
+{
+  "name": "xrpl-seed-to-bigquery",
+  "dependencies": {
+    "@google-cloud/bigquery": "^4.7.0",
+    "ripple-keypairs": "^1.0.0"
+  }
+}
