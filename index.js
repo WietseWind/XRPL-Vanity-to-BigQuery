@@ -6,10 +6,10 @@ const bigquery = new BigQuery()
  * options.children: the amount of child processes you like to start
  */
 const options = {
-  children: 88,
+  children: 70,
   interval: {
     stats: 1,
-    persist: 3
+    persist: 1
   },
   generated: 0,
   started: Math.round(new Date() / 1000),

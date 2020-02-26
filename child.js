@@ -45,7 +45,7 @@ const main = async data => {
   const stats = {
     generated: 0,
     reportPer: 25,
-    reportBufferPer: 15, // Note: size limit in process messaging
+    reportBufferPer: 10, // Note: size limit in process messaging
     buffer: []
   }
 
