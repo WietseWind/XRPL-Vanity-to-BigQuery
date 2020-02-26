@@ -6,7 +6,7 @@ const bigquery = new BigQuery()
  * options.children: the amount of child processes you like to start
  */
 const options = {
-  children: 2,
+  children: 60,
   recordCountStore: 7500,
   datasetId: 'xrpl_vanity',
   tableId: 'accounts',
@@ -63,7 +63,7 @@ const launch = data => {
             console.log('Buffer length', buffer.length)
           }
           if (buffer.length >= options.recordCountStore) {
-            console.log(`Storing ${buffer.length} records...`)
+            console.log(`      # STORING ${buffer.length} RECORDS...`)
             const _buffer = buffer
             buffer = []
 
