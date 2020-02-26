@@ -42,7 +42,7 @@ const insertRowsAsStream = async rows => {
     console.log(`      > BigQuery: Inserted ${rows.length} rows`)
   } catch (e) {
     console.log(`      > BigQuery Insert ERROR(s):`)
-    console.log(e.errors.map(r => r.errors[0]))
+    console.log(e.errors.map(r => r))
   }
 }
 
@@ -50,7 +50,9 @@ let persistInterval = setInterval(() => {
   const buffer = options.buffer
   options.buffer = []
 
-  insertRowsAsStream(buffer)
+  if (buffer.length > 0) {
+    insertRowsAsStream(buffer)
+  }
 }, options.interval.persist * 1000)
 
 /**
