@@ -6,7 +6,7 @@ const bigquery = new BigQuery()
  * options.children: the amount of child processes you like to start
  */
 const options = {
-  children: 2,
+  children: 88,
   interval: {
     stats: 1,
     persist: 3
