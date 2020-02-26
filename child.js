@@ -44,28 +44,52 @@ process.on('message', async msg => {
 const main = async data => {
   const stats = {
     generated: 0,
-    reportPer: 25
+    reportPer: 25,
+    reportPer: 10, // Note: size limit in process messaging
+    buffer: []
   }
 
   while (true) {
     const seed = keypairs.generateSeed()
     const keypair = keypairs.deriveKeypair(seed)
     const address = keypairs.deriveAddress(keypair.publicKey)
+    
     stats.generated++
-    if (stats.generated % stats.reportPer === 0) {
-      process.send({
-        type: 'progress',
-        pid: process.pid,
-        data: stats.reportPer
-      })
+
+    stats.buffer.push({
+      Address: address,
+      FamilySeed: seed
+    })
+
+    if (stats.generated > 0) {
+      if (stats.generated % stats.reportPer === 0) {
+        // console.log('Report', stats.generated)
+        process.send({
+          type: 'progress',
+          pid: process.pid,
+          data: stats.reportPer
+        })
+      }
+
+      if (stats.generated % stats.reportPer === 0) {
+        process.send({
+          type: 'store',
+          pid: process.pid,
+          data: stats.buffer
+        })
+        stats.buffer = []
+      }
     }
 
-    if (address.slice(1).match(/^(xummpro|XUMMPRO)|(xummpro|XUMMPRO)$/)) {
-      process.send({
-        type: 'found',
-        pid: process.pid,
-        data: {seed, address}
-      })
-    }
+    /**
+     * Stop process if a certain address is found
+     */
+    // if (address.slice(1).match(/^(something)|(something)$/i)) {
+    //   process.send({
+    //     type: 'found',
+    //     pid: process.pid,
+    //     data: {seed, address}
+    //   })
+    // }
   }
 }
