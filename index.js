@@ -11,7 +11,7 @@ const options = {
   datasetId: 'xrpl_vanity',
   tableId: 'accounts',
   persist: {
-    chars: 15
+    chars: 12
   }
 }
 
