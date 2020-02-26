@@ -27,7 +27,7 @@ const main = async (
     forward: [],
     backward: []
   }
-  for (let i = 1; i <= 12; i++) {
+  for (let i = 1; i <= 15; i++) {
     push.forward.push({name: `f${i}`, type: 'STRING'})
     push.backward.push({name: `r${i}`, type: 'STRING'})
   }

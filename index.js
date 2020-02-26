@@ -6,12 +6,12 @@ const bigquery = new BigQuery()
  * options.children: the amount of child processes you like to start
  */
 const options = {
-  children: 60,
+  children: 35,
   recordCountStore: 7500,
   datasetId: 'xrpl_vanity',
   tableId: 'accounts',
   persist: {
-    chars: 12
+    chars: 15
   }
 }
 
